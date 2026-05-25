@@ -150,9 +150,11 @@ resource "aws_nat_gateway" "veritas" {
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.veritas.id
-  route  { cidr_block = "0.0.0.0/0"
-           nat_gateway_id = aws_nat_gateway.veritas.id }
-  tags   = { Name = "veritas-private-rt" }
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.veritas.id
+  }
+  tags = { Name = "veritas-private-rt" }
 }
 
 resource "aws_route_table_association" "private" {
@@ -163,9 +165,11 @@ resource "aws_route_table_association" "private" {
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.veritas.id
-  route  { cidr_block = "0.0.0.0/0"
-           gateway_id = aws_internet_gateway.veritas.id }
-  tags   = { Name = "veritas-public-rt" }
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.veritas.id
+  }
+  tags = { Name = "veritas-public-rt" }
 }
 
 resource "aws_route_table_association" "public" {
@@ -595,8 +599,14 @@ resource "aws_s3_bucket_lifecycle_configuration" "audit_logs" {
     id     = "audit-retain-7yr"
     status = "Enabled"
     filter { prefix = "" }
-    transition { days = 90;   storage_class = "STANDARD_IA" }
-    transition { days = 365;  storage_class = "GLACIER" }
+    transition {
+      days          = 90
+      storage_class = "STANDARD_IA"
+    }
+    transition {
+      days          = 365
+      storage_class = "GLACIER"
+    }
     expiration { days = 2555 }  # 7 years
     noncurrent_version_expiration { noncurrent_days = 90 }
   }
@@ -724,13 +734,16 @@ resource "aws_iam_role" "eks_node" {
   })
 }
 resource "aws_iam_role_policy_attachment" "eks_node_policy" {
-  role = aws_iam_role.eks_node.name; policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_node.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
-  role = aws_iam_role.eks_node.name; policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_node.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 resource "aws_iam_role_policy_attachment" "eks_ecr_policy" {
-  role = aws_iam_role.eks_node.name; policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_node.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 # Ingestor workload — SQS consumer + Aurora writer + Redis
