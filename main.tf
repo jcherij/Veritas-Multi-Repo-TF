@@ -856,3 +856,14 @@ resource "aws_iam_role_policy" "flow_log" {
     Statement = [{ Effect = "Allow", Action = ["logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogGroups", "logs:DescribeLogStreams"], Resource = "*" }]
   })
 }
+
+resource "aws_s3_bucket_object_lock_configuration" "regulatory_archive" {
+  bucket = aws_s3_bucket.regulatory_archive.id
+
+  rule {
+    default_retention {
+      mode  = "COMPLIANCE"
+      years = 10
+    }
+  }
+}
